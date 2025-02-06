@@ -1,1 +1,6 @@
--e "venv/\n__pycache__/\ndb.sqlite3\n*.pyc\n*.log\n.env" 
+venv/
+__pycache__/
+db.sqlite3
+*.pyc
+*.log
+.env
