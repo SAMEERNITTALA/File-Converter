@@ -9,12 +9,12 @@
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Convert</button>
+        {% if uploaded_file %}
+            <input type="hidden" name="file_id" value="{{ uploaded_file.id }}">
+            <button type="submit" name="convert">Convert</button>
+        {% else %}
+            <button type="submit">Upload</button>
+        {% endif %}
     </form>
-
-    {% if form.instance.converted_file %}
-        <h2>Converted File</h2>
-        <p>File has been converted and downloaded automatically.</p>
-    {% endif %}
 </body>
 </html>
