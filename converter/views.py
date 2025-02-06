@@ -9,20 +9,21 @@ import os
 
 def index(request):
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            uploaded_file = form.save(commit=False)
-            uploaded_file.file_type = identify_file_type(uploaded_file.file.path)
-            uploaded_file.save()
+        if 'upload' in request.POST:  # Handle file upload
+            form = UploadFileForm(request.POST, request.FILES)
+            if form.is_valid():
+                uploaded_file = form.save(commit=False)
+                uploaded_file.file_type = identify_file_type(uploaded_file.file.path)
+                uploaded_file.save()
 
-            # Get supported conversions for the file type
-            supported_conversions = get_supported_conversions(uploaded_file.file_type)
-            form = UploadFileForm(output_file_types=supported_conversions)
-            return render(request, 'converter/index.html', {'form': form, 'uploaded_file': uploaded_file})
+                # Get supported conversions for the file type
+                supported_conversions = get_supported_conversions(uploaded_file.file_type)
+                form = UploadFileForm(output_file_types=supported_conversions)
+                return render(request, 'converter/index.html', {'form': form, 'uploaded_file': uploaded_file})
 
-        # Handle conversion after selecting output file type
-        if 'convert' in request.POST:
-            uploaded_file = UploadedFile.objects.get(id=request.POST.get('file_id'))
+        elif 'convert' in request.POST:  # Handle file conversion
+            file_id = request.POST.get('file_id')
+            uploaded_file = UploadedFile.objects.get(id=file_id)
             uploaded_file.height = request.POST.get('height')
             uploaded_file.width = request.POST.get('width')
             uploaded_file.file_size = request.POST.get('file_size')
