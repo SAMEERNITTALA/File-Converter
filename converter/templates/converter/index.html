@@ -1,20 +1,66 @@
 <!-- converter/templates/converter/index.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Converter</title>
+    <link rel="stylesheet" href="{% static 'converter/css/styles.css' %}">
 </head>
 <body>
-    <h1>File Converter</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        {% if uploaded_file %}
-            <input type="hidden" name="file_id" value="{{ uploaded_file.id }}">
-            <button type="submit" name="convert">Convert</button>
-        {% else %}
-            <button type="submit" name="upload">Upload</button>
-        {% endif %}
-    </form>
+    <div class="container">
+        <div class="upload-box" id="uploadBox">
+            <label for="fileInput" class="upload-label">Choose Files</label>
+            <input type="file" id="fileInput" multiple style="display: none;">
+        </div>
+        <div class="file-list" id="fileList"></div>
+        <div class="output-settings" id="outputSettings">
+            <input type="text" id="outputFileName" placeholder="Output File Name">
+            <div class="output-type" id="outputType">
+                <button onclick="toggleDropdown()">Select Output Type</button>
+                <div class="dropdown-content" id="dropdownContent">
+                    <input type="text" id="searchBar" placeholder="Search file type...">
+                    <div class="dropdown-split">
+                        <div class="left">
+                            <div onmouseover="showOptions('image')">Image</div>
+                            <div onmouseover="showOptions('document')">Document</div>
+                        </div>
+                        <div class="right" id="options"></div>
+                    </div>
+                </div>
+            </div>
+            <button onclick="openAdvancedSettings()">⚙️</button>
+        </div>
+        <div class="advanced-settings" id="advancedSettings">
+            <h3>Advanced Settings</h3>
+            <label>
+                <input type="radio" name="resize" value="original"> Keep original size
+            </label>
+            <label>
+                <input type="radio" name="resize" value="custom"> Choose a method if you want to resize the output image.
+            </label>
+            <label>
+                Compression Level:
+                <select>
+                    <option value="lossy">Lossy Compression</option>
+                    <option value="lossless">Lossless Compression</option>
+                </select>
+            </label>
+            <label>
+                Image Quality:
+                <input type="range" min="1" max="100" value="100">
+            </label>
+            <label>
+                Choose a color to make transparent:
+                <input type="color">
+            </label>
+            <button onclick="applySettings()">Apply Settings</button>
+        </div>
+        <div class="footer">
+            <span id="fileCount">Added 0 Files</span>
+            <button onclick="convertFiles()">Convert</button>
+        </div>
+    </div>
+    <script src="{% static 'converter/js/script.js' %}"></script>
 </body>
 </html>

@@ -1,4 +1,1 @@
 Django==5.0.6
-Pillow==11.1.0
-python_magic==0.4.27
-python_magic_bin==0.4.14
