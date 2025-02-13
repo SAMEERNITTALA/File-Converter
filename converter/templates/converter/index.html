@@ -1,5 +1,5 @@
 <!-- converter/templates/converter/index.html -->
- {%load static%}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -63,5 +63,50 @@
         </div>
     </div>
     <script src="{% static 'converter/js/script.js' %}"></script>
+    <script>
+        function convertFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const outputFileType = document.querySelector('#outputType button').textContent.toLowerCase();
+            const formData = new FormData();
+
+            // Add files to FormData
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('files', fileInput.files[i]);
+            }
+
+            // Add output file type
+            formData.append('output_file_type', outputFileType);
+
+            // Send POST request to backend
+            fetch('/convert/', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}', // Add CSRF token for Django
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('File conversion failed');
+            })
+            .then(blob => {
+                // Trigger file download
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `converted_file.${outputFileType}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('File conversion failed. Please try again.');
+            });
+        }
+    </script>
 </body>
 </html>

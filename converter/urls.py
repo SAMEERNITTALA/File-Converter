@@ -4,4 +4,5 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('convert/', views.convert_file, name='convert_file'),
 ]
