@@ -44,7 +44,62 @@ function applySettings() {
     document.getElementById('advancedSettings').style.display = 'none';
 }
 
+// converter/static/converter/js/script.js
 function convertFiles() {
-    alert('Conversion started...');
-    location.reload();
+    const fileInput = document.getElementById('fileInput');
+    const outputFileType = document.querySelector('#outputType button').textContent.toLowerCase();
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert("Please select a file to convert.");
+        return;
+    }
+
+    if (!outputFileType) {
+        alert("Please select an output file type.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    // Add files to FormData
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('files', fileInput.files[i]);
+    }
+
+    // Add output file type
+    formData.append('output_file_type', outputFileType);
+
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    formData.append('csrfmiddlewaretoken', csrfToken);
+
+    // Send POST request to backend
+    fetch('/convert/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest', // Indicate AJAX request
+        },
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.blob();
+        }
+        throw new Error('File conversion failed');
+    })
+    .then(blob => {
+        // Trigger file download
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `converted_file.${outputFileType}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('File conversion failed. Please try again.');
+    });
 }
